@@ -161,6 +161,16 @@ func (el *ExecutionLayer) RegisterAPIs(apis []rpc.API) {
 	el.stack.RegisterAPIs(apis)
 }
 
+// Backend returns the backend of the execution layer.
+func (el *ExecutionLayer) Stack() NetworkingStack {
+	return el.stack
+}
+
+// Backend returns the backend of the execution layer.
+func (el *ExecutionLayer) Backend() *polar.Polaris {
+	return el.backend
+}
+
 // Start starts the networking stack of the execution layer.
 // It returns an error if the start operation fails.
 func (el *ExecutionLayer) Start() error {
@@ -171,19 +181,4 @@ func (el *ExecutionLayer) Start() error {
 // It returns an error if the close operation fails.
 func (el *ExecutionLayer) Close() error {
 	return el.stack.Close()
-}
-
-// Miner returns the miner interface of the backend of the execution layer.
-func (el *ExecutionLayer) Miner() Miner {
-	return el.backend.Miner()
-}
-
-// TxPool returns the transaction pool interface of the backend of the execution layer.
-func (el *ExecutionLayer) TxPool() TxPool {
-	return el.backend.TxPool()
-}
-
-// Blockchain returns the blockchain interface of the backend of the execution layer.
-func (el *ExecutionLayer) Blockchain() pcore.Blockchain {
-	return el.backend.Blockchain()
 }

@@ -103,7 +103,7 @@ func New(
 		panic(err)
 	}
 
-	p.WrappedTxPool = txpool.New(p.Blockchain(), p.TxPool(), cfg.Polar.LegacyTxPool.Lifetime)
+	p.WrappedTxPool = txpool.New(p.Backend().Blockchain(), p.Backend().TxPool(), cfg.Polar.LegacyTxPool.Lifetime)
 
 	return p
 }
@@ -115,8 +115,8 @@ func (p *Polaris) Build(
 	app CosmosApp, cosmHandler sdk.AnteHandler, ek EVMKeeper, allowedValMsgs map[string]sdk.Msg,
 ) error {
 	// Wrap the geth miner and txpool with the cosmos miner and txpool.
-	p.WrappedMiner = miner.New(p.Miner(), app, ek, allowedValMsgs)
-	p.WrappedBlockchain = chain.New(p.Blockchain(), app)
+	p.WrappedMiner = miner.New(p.Backend().Miner(), app, ek, allowedValMsgs)
+	p.WrappedBlockchain = chain.New(p.Backend().Blockchain(), app)
 
 	app.SetMempool(p.WrappedTxPool)
 	app.SetPrepareProposal(p.WrappedMiner.PrepareProposal)
@@ -191,5 +191,5 @@ func (p *Polaris) LoadLastState(cms storetypes.CommitMultiStore, appHeight uint6
 		WithMultiStore(cms).
 		WithGasMeter(storetypes.NewInfiniteGasMeter()).
 		WithBlockGasMeter(storetypes.NewInfiniteGasMeter()).WithEventManager(sdk.NewEventManager())
-	return p.Blockchain().LoadLastState(cmsCtx, appHeight)
+	return p.Backend().Blockchain().LoadLastState(cmsCtx, appHeight)
 }
