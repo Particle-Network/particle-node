@@ -186,6 +186,11 @@ func (pl *Polaris) APIs() []rpc.API {
 	}...)
 }
 
+// APIBackend returns the API backend of the Polaris object.
+func (pl *Polaris) APIBackend() APIBackend {
+	return pl.apiBackend
+}
+
 // RegisterSyncStatusProvider registers a sync status provider.
 func (pl *Polaris) RegisterSyncStatusProvider(
 	syncStatus SyncStatusProvider,

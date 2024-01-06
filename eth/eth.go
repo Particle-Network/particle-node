@@ -156,6 +156,11 @@ func (el *ExecutionLayer) RegisterLifecycle(lifecycle node.Lifecycle) {
 	el.stack.RegisterLifecycle(lifecycle)
 }
 
+// RegisterAPIs registers JSON-RPC APIs to the networking stack of the execution layer.
+func (el *ExecutionLayer) RegisterAPIs(apis []rpc.API) {
+	el.stack.RegisterAPIs(apis)
+}
+
 // Start starts the networking stack of the execution layer.
 // It returns an error if the start operation fails.
 func (el *ExecutionLayer) Start() error {
