@@ -25,13 +25,12 @@ import (
 	"context"
 	"time"
 
-	"cosmossdk.io/log"
-
 	"github.com/cosmos/gogoproto/proto"
+
+	"cosmossdk.io/log"
 
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/core"
-	coretypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -133,7 +132,7 @@ func (m *Miner) resolveEnvelope() ([]byte, uint64) {
 
 	m.logger.Info("resolved payload", "gas_used", payload.GasUsed, "num_txs", len(payload.Transactions))
 	for _, txBz := range payload.Transactions {
-		tx := coretypes.Transaction{}
+		tx := ethtypes.Transaction{}
 		tx.UnmarshalBinary(txBz)
 		m.logger.Info("tx", "hash", tx.Hash().Hex(), "gas", tx.Gas(), "to", tx.To().Hex())
 	}

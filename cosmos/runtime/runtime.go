@@ -133,6 +133,7 @@ func (p *Polaris) Build(
 		p.ExecutionLayer.Backend().Miner(), app,
 		ek.GetHost().GetStatePluginFactory(),
 		allowedValMsgs,
+		p.logger,
 	)
 	p.WrappedBlockchain = chain.New(
 		p.ExecutionLayer.Backend().Blockchain(), app,
