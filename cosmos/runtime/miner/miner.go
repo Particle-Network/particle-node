@@ -25,10 +25,13 @@ import (
 	"context"
 	"time"
 
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/gogoproto/proto"
 
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/core"
+	coretypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -48,11 +51,13 @@ type Miner struct {
 	serializer     EnvelopeSerializer
 	allowedValMsgs map[string]sdk.Msg
 	currentPayload *miner.Payload
+	logger         log.Logger
 }
 
 // New produces a cosmos miner from a geth miner.
 func New(
 	miner eth.Miner, app TxDecoder, spf core.StatePluginFactory, allowedValMsgs map[string]sdk.Msg,
+	logger log.Logger,
 ) *Miner {
 	return &Miner{
 		miner:          miner,
@@ -60,6 +65,7 @@ func New(
 		spf:            spf,
 		allowedValMsgs: allowedValMsgs,
 		valTxSelector:  baseapp.NewDefaultTxSelector(),
+		logger:         logger,
 	}
 }
 
@@ -125,6 +131,12 @@ func (m *Miner) resolveEnvelope() ([]byte, uint64) {
 	defer telemetry.SetGauge(float32(payload.GasUsed), MetricKeyBlockGasUsed)
 	defer telemetry.SetGauge(float32(len(payload.Transactions)), MetricKeyTransactions)
 
+	m.logger.Info("resolved payload", "gas_used", payload.GasUsed, "num_txs", len(payload.Transactions))
+	for _, txBz := range payload.Transactions {
+		tx := coretypes.Transaction{}
+		tx.UnmarshalBinary(txBz)
+		m.logger.Info("tx", "hash", tx.Hash().Hex(), "gas", tx.Gas(), "to", tx.To().Hex())
+	}
 	bz, err := m.serializer.ToSdkTxBytes(envelope, payload.GasLimit)
 	if err != nil {
 		panic(err)
