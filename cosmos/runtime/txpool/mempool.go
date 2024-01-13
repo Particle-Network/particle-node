@@ -30,6 +30,7 @@ import (
 	"github.com/berachain/polaris/cosmos/x/evm/types"
 	"github.com/berachain/polaris/eth"
 	"github.com/berachain/polaris/eth/core"
+	"github.com/berachain/polaris/eth/core/state"
 	"github.com/berachain/polaris/lib/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -61,14 +62,16 @@ type GethTxPool interface {
 // is to allow for transactions coming in from CometBFT's gossip to be added to the underlying
 // geth txpool during `CheckTx`, that is the only purpose of `Mempool“.
 type Mempool struct {
-	txpool   eth.TxPool
-	lifetime time.Duration
-	chain    core.ChainReader
-	handler  Lifecycle
+	txpool        eth.TxPool
+	lifetime      time.Duration
+	chain         core.Blockchain
+	handler       Lifecycle
+	blockNumCache uint64
+	stateCache    state.StateDB
 }
 
 // New creates a new Mempool.
-func New(chain core.ChainReader, txpool eth.TxPool, lifetime time.Duration) *Mempool {
+func New(chain core.Blockchain, txpool eth.TxPool, lifetime time.Duration) *Mempool {
 	return &Mempool{
 		txpool:   txpool,
 		chain:    chain,

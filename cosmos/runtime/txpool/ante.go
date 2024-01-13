@@ -22,6 +22,7 @@ package txpool
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
@@ -62,12 +63,28 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	}
 	txStatus := m.txStatus(tx.Hash())
 
+	// todo: add to head event.
+	blockNum := m.chain.CurrentBlock().Number.Uint64()
+	if m.blockNumCache < blockNum || m.stateCache == nil {
+		m.blockNumCache = blockNum
+		state, err := m.chain.StateAtBlockNumber(m.chain.CurrentBlock().Number.Uint64())
+		if err != nil {
+			fmt.Println("ERROR")
+		}
+		m.stateCache = state
+	}
+
+	addr, err := ethtypes.NewCancunSigner(tx.ChainId()).Sender(tx)
+	if err != nil {
+		return false
+	}
+
 	// Ejection conditions
 	// 1. If the transaction has been included in a block.
 	// 2. If the transaction is unknown to the node.
 	// 3. If the transaction has been in the mempool for longer than the configured timeout.
 	return txStatus == txpool.TxStatusIncluded || txStatus == txpool.TxStatusUnknown ||
-		currentTime.Sub(tx.Time()) > m.lifetime
+		currentTime.Sub(tx.Time()) > m.lifetime || tx.Nonce() < m.stateCache.GetNonce(addr)
 }
 
 // txStatus returns the status of the transaction.
