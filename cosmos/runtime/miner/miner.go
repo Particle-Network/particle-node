@@ -79,6 +79,7 @@ func (m *Miner) buildBlock(ctx sdk.Context) ([]byte, uint64, error) {
 	if err := m.submitPayloadForBuilding(ctx); err != nil {
 		return nil, 0, err
 	}
+	time.Sleep(500 * time.Millisecond)
 	env, gasUsed := m.resolveEnvelope()
 
 	return env, gasUsed, nil
