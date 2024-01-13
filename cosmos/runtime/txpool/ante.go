@@ -73,14 +73,15 @@ func (m *Mempool) shouldEjectFromCometMempool(
 // txStatus returns the status of the transaction.
 func (m *Mempool) txStatus(hash common.Hash) txpool.TxStatus {
 	// Looking for the transaction in txpool first.
-	status := m.txpool.Status(hash)
+	// status := m.txpool.Status(hash)
 
 	// If the transaction is unknown to the pool, try looking it up locally.
-	if status == txpool.TxStatusUnknown {
-		lookup := m.chain.GetTransactionLookup(hash)
-		if lookup != nil {
-			status = txpool.TxStatusIncluded
-		}
+	// if status == txpool.TxStatusUnknown {
+	status := txpool.TxStatusUnknown
+	lookup := m.chain.GetTransactionLookup(hash)
+	if lookup != nil {
+		status = txpool.TxStatusIncluded
 	}
+	// }
 	return status
 }
