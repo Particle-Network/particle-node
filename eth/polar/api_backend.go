@@ -40,6 +40,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/bloombits"
+	coretypes "github.com/ethereum/go-ethereum/core/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
@@ -60,6 +61,7 @@ type (
 		polarapi.NetBackend
 		polarapi.Web3Backend
 		tracers.Backend
+		SetBlessedTxProvider(BlessedTxProvider)
 	}
 
 	// SyncStatusProvider defines methods that allow the chain to have insight into the underlying
@@ -83,6 +85,11 @@ type backend struct {
 	hostChainVersion    string
 	gpo                 *gasprice.Oracle
 	logger              log.Logger
+	blessed             BlessedTxProvider
+}
+
+type BlessedTxProvider interface {
+	TxSend(*coretypes.Transaction) error
 }
 
 // ==============================================================================
@@ -112,6 +119,10 @@ func NewAPIBackend(
 	}
 	b.gpo = gasprice.NewOracle(b, cfg.GPO)
 	return b
+}
+
+func (b *backend) SetBlessedTxProvider(blessed BlessedTxProvider) {
+	b.blessed = blessed
 }
 
 // ==============================================================================
@@ -498,7 +509,8 @@ func (b *backend) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.S
 // ==============================================================================
 
 func (b *backend) SendTx(_ context.Context, signedTx *ethtypes.Transaction) error {
-	return b.polar.txPool.Add([]*ethtypes.Transaction{signedTx}, true, false)[0]
+	return b.blessed.TxSend(signedTx)
+	// return b.polar.txPool.Add([]*ethtypes.Transaction{signedTx}, true, false)[0]
 }
 
 func (b *backend) GetPoolTransactions() (ethtypes.Transactions, error) {

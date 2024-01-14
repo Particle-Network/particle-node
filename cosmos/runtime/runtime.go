@@ -194,6 +194,8 @@ func (p *Polaris) SetupServices(clientCtx client.Context) error {
 	// Register the sync status provider with Polaris.
 	p.ExecutionLayer.Backend().RegisterSyncStatusProvider(comet.NewSyncProvider(clientCtx))
 
+	p.ExecutionLayer.Backend().APIBackend().SetBlessedTxProvider(p.WrappedTxPool)
+
 	// Start the services. TODO: move to place race condition is solved.
 	return p.StartServices()
 }

@@ -70,7 +70,7 @@ type Mempool struct {
 	txpool   eth.TxPool
 	lifetime time.Duration
 	chain    core.ChainReader
-	handler  Lifecycle
+	handler  *handler
 
 	// when pause inserts is enabled, we use a channel to queue transactions
 	// to be inserted into the txpool after a block is committed.
@@ -121,6 +121,28 @@ func (m *Mempool) Stop() error {
 	m.stopInsertCh <- struct{}{}
 	m.wg.Wait() // wait for processInserts to stop
 	return m.handler.Stop()
+}
+
+func (m *Mempool) TxSend(tx *ethtypes.Transaction) error {
+	m.logger.Info("SendBlessedTx", "tx", tx)
+	bz, err := m.handler.serializer.ToSdkTxBytes(tx, tx.Gas())
+	if err != nil {
+		return err
+	}
+
+	// Send the transaction to the CometBFT mempool, which will gossip it to peers via
+	// CometBFT's p2p layer.
+	rsp, err := m.handler.clientCtx.BroadcastTxSync(bz)
+
+	if err != nil {
+		m.logger.Error("error on transactions broadcast", "err", err)
+		return err
+	}
+	if rsp == nil || rsp.Code == 0 {
+		return err
+	}
+
+	return nil
 }
 
 // Insert attempts to insert a Tx into the app-side mempool returning

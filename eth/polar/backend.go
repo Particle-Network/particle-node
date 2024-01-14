@@ -230,6 +230,7 @@ func (pl *Polaris) Blockchain() core.Blockchain {
 	return pl.blockchain
 }
 
+// APIBackend returns the API backend.
 func (pl *Polaris) APIBackend() APIBackend {
 	return pl.apiBackend
 }
