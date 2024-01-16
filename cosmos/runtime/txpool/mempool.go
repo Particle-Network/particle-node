@@ -140,6 +140,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 
 	// Add the eth tx to the remote cache.
 	m.crc.MarkRemoteSeen(ethTx.Hash())
+	telemetry.IncrCounter(float32(1), MetricKeyMempoolInsertedTxs)
 	telemetry.IncrCounter(float32(1), MetricKeyMempoolSize)
 
 	return nil
@@ -181,7 +182,9 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			// We only want to remove transactions from the mempool if we're forcing it.
 			if m.forceTxRemoval {
 				m.TxPool.Remove(txHash)
-				telemetry.IncrCounter(float32(len(txs)), MetricKeyMempoolSize)
+				numTxs := float32(len(txs))
+				telemetry.IncrCounter(numTxs, MetricKeyMempoolForcelyRemovedTxs)
+				telemetry.IncrCounter(-numTxs, MetricKeyMempoolSize)
 			}
 		}
 	}

@@ -21,8 +21,14 @@
 package txpool
 
 const (
-	MetricKeyMempoolFull      = "polaris_cometbft_mempool_full"
-	MetricKeyBroadcastFailure = "polaris_cometbft_broadcast_failure"
-	MetricKeyTimeShouldEject  = "polaris_cometbft_time_should_eject"
-	MetricKeyMempoolSize      = "polaris_cometbft_mempool_size"
+	MetricKeyMempoolFull                  = "polaris_cometbft_mempool_full"
+	MetricKeyMempoolSize                  = "polaris_cometbft_mempool_size"
+	MetricKeyMempoolInsertedTxs           = "polaris_cometbft_mempool_inserted_txs"
+	MetricKeyMempoolForcelyRemovedTxs     = "polaris_cometbft_mempool_forcely_removed_txs"
+	MetricKeyMempoolAnteEvictedTxs        = "polaris_cometbft_mempool_evicted_txs"
+	MetricKeyBroadcastTxs                 = "polaris_cometbft_broadcast_txs"
+	MetricKeyBroadcastReceivedTxs         = "polaris_cometbft_broadcast_received_txs"
+	MetricKeyBroadcastFailedAndRetriedTxs = "polaris_cometbft_broadcast_failed_and_retried_txs"
+	MetricKeyBroadcastFailure             = "polaris_cometbft_broadcast_failure"
+	MetricKeyTimeShouldEject              = "polaris_cometbft_time_should_eject"
 )

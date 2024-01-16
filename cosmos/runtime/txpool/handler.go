@@ -202,6 +202,7 @@ func (h *handler) stop(err error) {
 
 // broadcastTransactions will propagate a batch of transactions to the CometBFT mempool.
 func (h *handler) broadcastTransactions(txs ethtypes.Transactions) {
+	telemetry.IncrCounter(float32(len(txs)), MetricKeyBroadcastReceivedTxs)
 	numBroadcasted := 0
 	for _, signedEthTx := range txs {
 		if !h.crc.IsRemoteTx(signedEthTx.Hash()) {
@@ -216,6 +217,7 @@ func (h *handler) broadcastTransactions(txs ethtypes.Transactions) {
 
 // broadcastTransaction will propagate a transaction to the CometBFT mempool.
 func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
+	telemetry.IncrCounter(float32(1), MetricKeyBroadcastTxs)
 	txBytes, err := h.serializer.ToSdkTxBytes(tx, tx.Gas())
 	if err != nil {
 		h.logger.Error("failed to serialize transaction", "err", err)
@@ -250,5 +252,6 @@ func (h *handler) broadcastTransaction(tx *ethtypes.Transaction, retries int) {
 		telemetry.IncrCounter(float32(1), MetricKeyBroadcastFailure)
 	}
 
+	telemetry.IncrCounter(float32(1), MetricKeyBroadcastFailedAndRetriedTxs)
 	h.failedTxs <- &failedTx{tx: tx, retries: retries}
 }
