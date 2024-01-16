@@ -22,6 +22,7 @@ package txpool
 
 import (
 	"errors"
+	"math/big"
 	"time"
 
 	"github.com/berachain/polaris/cosmos/x/evm/types"
@@ -70,7 +71,10 @@ func (m *Mempool) shouldEjectFromCometMempool(
 	// 2. If the transaction is unknown to the node.
 	// 3. If the transaction has been in the mempool for longer than the configured timeout.
 	return txStatus == txpool.TxStatusIncluded ||
-		currentTime.Sub(tx.Time()) > m.lifetime
+		tx.GasPrice().Cmp(big.NewInt(20)) <= 0 ||
+		tx.GasFeeCap().Cmp(big.NewInt(20)) <= 0 ||
+		tx.GasTipCap().Cmp(big.NewInt(20)) <= 0
+
 }
 
 // txStatus returns the status of the transaction.
