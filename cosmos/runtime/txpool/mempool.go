@@ -32,6 +32,7 @@ import (
 	"github.com/berachain/polaris/eth/core"
 	"github.com/berachain/polaris/lib/utils"
 
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/mempool"
 
@@ -136,6 +137,7 @@ func (m *Mempool) Insert(ctx context.Context, sdkTx sdk.Tx) error {
 
 	// Add the eth tx to the remote cache.
 	m.crc.MarkRemoteSeen(ethTx.Hash())
+	telemetry.IncrCounter(float32(1), MetricKeyMempoolSize)
 
 	return nil
 }
@@ -161,8 +163,9 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			return nil
 		}
 
+		txs := env.UnwrapPayload().ExecutionPayload.Transactions
 		// Unwrap the payload to unpack the individual eth transactions to remove from the txpool.
-		for _, txBz := range env.UnwrapPayload().ExecutionPayload.Transactions {
+		for _, txBz := range txs {
 			ethTx := new(ethtypes.Transaction)
 			if err := ethTx.UnmarshalBinary(txBz); err != nil {
 				continue
@@ -175,6 +178,7 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 			// We only want to remove transactions from the mempool if we're forcing it.
 			if m.forceTxRemoval {
 				m.TxPool.Remove(txHash)
+				telemetry.IncrCounter(float32(len(txs)), MetricKeyMempoolSize)
 			}
 		}
 	}

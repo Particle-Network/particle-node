@@ -24,4 +24,5 @@ const (
 	MetricKeyMempoolFull      = "polaris_cometbft_mempool_full"
 	MetricKeyBroadcastFailure = "polaris_cometbft_broadcast_failure"
 	MetricKeyTimeShouldEject  = "polaris_cometbft_time_should_eject"
+	MetricKeyMempoolSize      = "polaris_cometbft_mempool_size"
 )
