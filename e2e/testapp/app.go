@@ -190,6 +190,7 @@ func NewPolarisApp(
 
 	polarisConfig := evmconfig.MustReadConfigFromAppOpts(appOpts)
 	if polarisConfig.OptimisticExecution {
+		logger.Info("⚠️ enabling optimistic execution, good luck ⚠️")
 		baseAppOptions = append(baseAppOptions, baseapp.SetOptimisticExecution())
 	}
 
