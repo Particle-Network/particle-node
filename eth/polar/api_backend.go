@@ -206,7 +206,7 @@ func (b *backend) HeaderByNumber(
 		// TODO: handle "miner" stuff, Pending block is only known by the miner
 		block := b.polar.miner.PendingBlock()
 		if block == nil {
-			return nil, nil //nolint:nilnil // it's ok.
+			return b.polar.blockchain.CurrentHeader(), nil
 		}
 		return block.Header(), nil
 	case rpc.LatestBlockNumber:
