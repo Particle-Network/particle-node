@@ -104,6 +104,10 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Collect genesis tx
 	./build/bin/polard genesis collect-gentxs --home "$HOMEDIR"
 
+	ADDRESS=$(jq -r '.address' $HOMEDIR/config/priv_validator_key.json)
+	PUB_KEY=$(jq -r '.pub_key' $HOMEDIR/config/priv_validator_key.json)
+	jq --argjson pubKey "$PUB_KEY" '.consensus["validators"]=[{"address": "'$ADDRESS'", "pub_key": $pubKey, "power": "1000000000000000", "name": "Rollkit Sequencer"}]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+
 	# Run this to ensure everything worked and that the genesis file is setup correctly
 	./build/bin/polard genesis validate-genesis --home "$HOMEDIR"
 
@@ -111,6 +115,9 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 		echo "pending mode is on, please wait for the first block committed."
 	fi
 fi
+# set the data availability layer's block height from local-celestia-devnet
+DA_BLOCK_HEIGHT=$(curl http://0.0.0.0:26657/block | jq -r '.result.block.header.height')
+echo $DA_BLOCK_HEIGHT
 
-# Start the node (remove the --pruning=nothing flag if historical queries are not needed)m
-./build/bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR"
+# Start the node (remove the --pruning=nothing flag if historical queries are not needed)
+./build/bin/polard start --pruning=nothing "$TRACE" --log_level $LOGLEVEL --api.enabled-unsafe-cors --api.enable --api.swagger --minimum-gas-prices=0.0001abera --home "$HOMEDIR" --rollkit.aggregator true --rollkit.da_start_height $DA_BLOCK_HEIGHT --rollkit.da_block_time 2s

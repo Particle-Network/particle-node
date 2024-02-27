@@ -12,6 +12,8 @@ replace (
 	github.com/ethereum/go-ethereum => github.com/berachain/polaris-geth v1.13.10-2-polar
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+	// replace cosmos-sdk w/ rollkit/cosmos-sdk
+	github.com/cosmos/cosmos-sdk => github.com/rollkit/cosmos-sdk v0.50.1-rollkit-v0.11.19-no-fraud-proofs-fixed
 )
 
 require (
